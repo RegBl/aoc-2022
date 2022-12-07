@@ -10,16 +10,16 @@ fun main() {
 
     val commonLetters = input.map { line ->
         line.take(line.length / 2).first { line.takeLast(line.length / 2).contains(it) }
-    }.map { scores[it] ?: 0 }
+    }.sumOf { scores[it] ?: 0 }
 
     val groupsOfThree = input.chunked(3)
         .map { strings ->
             strings[0].first { strings[1].contains(it) && strings[2].contains(it) }
-        }.map { scores[it] ?: 0 }
+        }.sumOf { scores[it] ?: 0 }
 
     // Part 1
-    println(commonLetters.sum())
+    println(commonLetters)
 
     // Part 2
-    println(groupsOfThree.sum())
+    println(groupsOfThree)
 }
