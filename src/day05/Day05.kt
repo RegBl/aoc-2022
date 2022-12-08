@@ -8,15 +8,12 @@ fun main() {
         readInput("\\day05\\Day05")
             .splitByEmptyLine()
 
-    val stacks = stacksRaw.map { line ->
-        line.chunked(4)
-    }.transpose().map {
-        it.dropLast(1)
-    }.map { stack ->
-        stack.map {
-            it?.trim()
-        }.filterNot { it.isNullOrBlank() }
-    }
+    val stacks = stacksRaw.map { it.chunked(4) }
+        .transpose()
+        .map { it.dropLast(1) }
+        .map { stack ->
+            stack.map { it.trim() }.filter { it.isNotBlank() }
+        }
 
     val instructions = instructionsRaw.map { line ->
         val regex = Regex("[0-9]+")
@@ -25,7 +22,7 @@ fun main() {
         testTwo
     }
 
-    val partOne = moveSingleCrates(instructions, stacks as List<List<String>>)
+    val partOne = moveSingleCrates(instructions, stacks)
         .map { it.first()[1] }.toCharArray()
 
     val partTwo = moveGroupedCrates(instructions, stacks)
@@ -35,9 +32,9 @@ fun main() {
     println(partTwo)
 }
 
-fun List<List<String>>.transpose(): List<MutableList<String?>> {
+fun List<List<String>>.transpose(): List<MutableList<String>> {
     val thisSize = this.last().size
-    val retList: List<MutableList<String?>> = List(thisSize) { mutableListOf() }
+    val retList = List<MutableList<String>>(thisSize) { mutableListOf() }
     retList.forEachIndexed { index, stack ->
         // each stack gets crate that matches index from each layer
         this.forEach { layer ->
@@ -50,22 +47,29 @@ fun List<List<String>>.transpose(): List<MutableList<String?>> {
 fun moveSingleCrates(instructions: List<List<Int>>, stacks: List<List<String>>): List<List<String>> {
     val retStacks = stacks.map { it.toMutableList() }
     instructions.forEach { instructionSet ->
-        for (crate in 0 until instructionSet.first()) {
-            retStacks[instructionSet[2] - 1].add(0, retStacks[instructionSet[1] - 1].removeFirst().toString())
+        val (crateQuantity, fromStack, toStack) = listOf(
+            instructionSet.component1(),
+            instructionSet.component2() - 1,
+            instructionSet.component3() - 1
+        )
+        for (crate in 0 until crateQuantity) {
+            retStacks[toStack].add(0, retStacks[fromStack].removeFirst().toString())
         }
     }
-
     return retStacks
 }
 
 fun moveGroupedCrates(instructions: List<List<Int>>, stacks: List<List<String>>): List<List<String>> {
     val retStacks = stacks.map { it.toMutableList() }
     instructions.forEach { instructionSet ->
-        val (crateQuantity, fromStack, toStack) = instructionSet
-        val substack = retStacks[fromStack - 1].take(crateQuantity)
-        retStacks[toStack - 1].addAll(0, substack)
-        for (crate in 0 until crateQuantity) retStacks[fromStack - 1].removeFirst()
+        val (crateQuantity, fromStack, toStack) = listOf(
+            instructionSet.component1(),
+            instructionSet.component2() - 1,
+            instructionSet.component3() - 1
+        )
+        val subStack = retStacks[fromStack].take(crateQuantity)
+        retStacks[toStack].addAll(0, subStack)
+        for (crate in 0 until crateQuantity) retStacks[fromStack].removeFirst()
     }
-
     return retStacks
 }

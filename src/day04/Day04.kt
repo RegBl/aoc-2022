@@ -8,14 +8,12 @@ fun main() {
     val range1 = 1..9
     val range2 = 2..8
 
-    range1.intersect(range2).let {  }
+    range1.intersect(range2).let { }
 
     val processedInput = input.map { line ->
         line.split(",").map { half ->
             half.split("-")
-        }.map {
-            it.first().toInt()..it.last().toInt()
-        }
+        }.map { it.first().toInt()..it.last().toInt() }
     }.count { ranges ->
         (ranges.first().contains(ranges.last().first))
                 || (ranges.last().contains(ranges.first().first))
